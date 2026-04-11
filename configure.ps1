@@ -13,4 +13,5 @@ New-Item -ItemType Directory $BuildDir | Out-Null
 
 cmake -S "$PSScriptRoot\engine" -B $BuildDir `
     -DCMAKE_TOOLCHAIN_FILE="$VcpkgPath\scripts\buildsystems\vcpkg.cmake" `
-    -DCMAKE_BUILD_TYPE=$Config
+    -DVCPKG_INSTALLED_DIR="$VcpkgPath\installed"
+	-DCMAKE_BUILD_TYPE=$Config

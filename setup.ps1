@@ -33,6 +33,9 @@ if (Test-Path "$VcpkgPath\vcpkg.exe") {
 Log "Integrating vcpkg with Visual Studio..."
 & "$VcpkgPath\vcpkg.exe" integrate install
 
+Log "Installing dependencies..."
+& "$VcpkgPath\vcpkg.exe" install --triplet x64-windows --x-manifest-root "$PSScriptRoot\engine"
+
 # ── CMake configure ───────────────────────────────────────────────────────────
 
 $buildDir = "$PSScriptRoot\engine\build"
@@ -43,8 +46,11 @@ if (-not (Test-Path $buildDir)) {
 }
 
 Log "Running CMake configure..."
-cmake -S "$PSScriptRoot\engine" -B $buildDir -DCMAKE_TOOLCHAIN_FILE="$toolchain"
 
+cmake -S "$PSScriptRoot\engine" -B $BuildDir `
+    -DCMAKE_TOOLCHAIN_FILE="$VcpkgPath\scripts\buildsystems\vcpkg.cmake" `
+    -DVCPKG_INSTALLED_DIR="$VcpkgPath\installed"
+	
 if ($LASTEXITCODE -ne 0) { Fail "CMake configure failed." }
 
 Success "Setup complete! Open engine\build\PrettyFly.sln in Visual Studio."

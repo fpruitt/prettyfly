@@ -67,3 +67,7 @@ Makefile
 
 # vcpkg 
 tools/vcpkg/
+
+# vcpkg installed packages
+engine/vcpkg_installed/
+vcpkg_installed/

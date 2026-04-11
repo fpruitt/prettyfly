@@ -41,6 +41,9 @@ void drawDebugShape(GLFWwindow* window, const GLuint& shader, const float verts[
     glEnableVertexAttribArray(1);
     glDisable(GL_DEPTH_TEST);
 
+    // Ensure buffer upload completes before rendering
+    glFlush();
+
     while (!glfwWindowShouldClose(window)) {
         if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
             glfwSetWindowShouldClose(window, true);
@@ -55,6 +58,10 @@ void drawDebugShape(GLFWwindow* window, const GLuint& shader, const float verts[
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
+
+    // Cleanup
+    glDeleteVertexArrays(1, &VAO);
+    glDeleteBuffers(1, &VBO);
 }
 
 void drawDebugAirplane(GLFWwindow* window, const GLuint& shader) {
@@ -87,10 +94,10 @@ void drawDebugAirplane(GLFWwindow* window, const GLuint& shader) {
 
         0.0f,  0.4f, 0.0f,   0.8f, 0.8f, 0.8f,
         0.03f, -0.4f, 0.0f,  0.8f, 0.8f, 0.8f,
-        -0.03f,  0.4f, 0.0f,  0.8f, 0.8f, 0.8f, 
+        0.00f,  0.4f, 0.0f,  0.8f, 0.8f, 0.8f, 
     };
 
-    drawDebugShape(window, shader, verts, 24);
+    drawDebugShape(window, shader, verts, 18);
 }
 
 void drawDebugTriangle(GLFWwindow* window, const GLuint& shader) {
@@ -120,7 +127,7 @@ int main() {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    GLFWwindow* window = glfwCreateWindow(1280, 720, engineName, nullptr, nullptr);
+    GLFWwindow* window = glfwCreateWindow(1920, 1080, windowTitle, nullptr, nullptr);
     glfwMakeContextCurrent(window);
     gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
 

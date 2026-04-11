@@ -24,7 +24,97 @@ const char* fragSrc = R"(
 
 const char* engineName = "PrettyFly";
 
+void drawDebugShape(GLFWwindow* window, const GLuint& shader, const float verts[], int vertexCount) {
+    GLuint VAO, VBO;
+    glGenVertexArrays(1, &VAO);
+    glGenBuffers(1, &VBO);
+
+    glBindVertexArray(VAO);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferData(GL_ARRAY_BUFFER, vertexCount * 6 * sizeof(float), verts, GL_STATIC_DRAW);
+
+    // Position attribute
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+    // Color attribute
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
+    glDisable(GL_DEPTH_TEST);
+
+    while (!glfwWindowShouldClose(window)) {
+        if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+            glfwSetWindowShouldClose(window, true);
+
+        glClearColor(0.1f, 0.1f, 0.15f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
+
+        glUseProgram(shader);
+        glBindVertexArray(VAO);
+        glDrawArrays(GL_TRIANGLES, 0, vertexCount);
+
+        glfwSwapBuffers(window);
+        glfwPollEvents();
+    }
+}
+
+void drawDebugAirplane(GLFWwindow* window, const GLuint& shader) {
+    float verts[] = {
+
+        // Left wing
+        0.0f,  0.0f, 0.0f,   0.5f, 0.6f, 0.9f,
+        -0.5f, -0.1f, 0.0f,   0.5f, 0.6f, 0.9f,
+        -0.05f, -0.15f, 0.0f, 0.5f, 0.6f, 0.9f,
+
+        // Right wing
+        0.0f,  0.0f, 0.0f,   0.5f, 0.6f, 0.9f,
+        0.05f, -0.15f, 0.0f, 0.5f, 0.6f, 0.9f,
+        0.5f, -0.1f, 0.0f,   0.5f, 0.6f, 0.9f,
+
+        // Left tail
+        0.0f, -0.3f, 0.0f,   0.6f, 0.5f, 0.9f,
+        -0.2f, -0.4f, 0.0f,   0.6f, 0.5f, 0.9f,
+        -0.03f, -0.4f, 0.0f,  0.6f, 0.5f, 0.9f,
+
+        // Right tail
+        0.0f, -0.3f, 0.0f,   0.6f, 0.5f, 0.9f,
+        0.03f, -0.4f, 0.0f,  0.6f, 0.5f, 0.9f,
+        0.2f, -0.4f, 0.0f,   0.6f, 0.5f, 0.9f,
+
+        // Fuselage (thin vertical rectangle)
+        0.0f,  0.4f, 0.0f,   0.8f, 0.8f, 0.8f,
+        -0.03f, -0.4f, 0.0f,  0.8f, 0.8f, 0.8f,
+        0.03f, -0.4f, 0.0f,  0.8f, 0.8f, 0.8f,
+
+        0.0f,  0.4f, 0.0f,   0.8f, 0.8f, 0.8f,
+        0.03f, -0.4f, 0.0f,  0.8f, 0.8f, 0.8f,
+        -0.03f,  0.4f, 0.0f,  0.8f, 0.8f, 0.8f, 
+    };
+
+    drawDebugShape(window, shader, verts, 24);
+}
+
+void drawDebugTriangle(GLFWwindow* window, const GLuint& shader) {
+    // Triangle: interleaved position + color
+    float verts[] = {
+        // pos              // color
+         0.0f,  0.5f, 0.0f,  1.0f, 0.2f, 0.2f,
+        -0.5f, -0.5f, 0.0f,  0.2f, 1.0f, 0.2f,
+         0.5f, -0.5f, 0.0f,  0.2f, 0.2f, 1.0f,
+    };
+
+    drawDebugShape(window, shader, verts, 3);
+}
+
 int main() {
+
+    
+    // TODO Handle more than just debug/release
+#ifdef PF_DEBUG
+    const char* windowTitle = "PrettyFly (Debug)";
+#else
+    const char* windowTitle = "PrettyFly";
+#endif
+
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -50,43 +140,7 @@ int main() {
     glDeleteShader(vert);
     glDeleteShader(frag);
 
-    // Triangle: interleaved position + color
-    float verts[] = {
-        // pos              // color
-         0.0f,  0.5f, 0.0f,  1.0f, 0.2f, 0.2f,
-        -0.5f, -0.5f, 0.0f,  0.2f, 1.0f, 0.2f,
-         0.5f, -0.5f, 0.0f,  0.2f, 0.2f, 1.0f,
-    };
-
-    GLuint VAO, VBO;
-    glGenVertexArrays(1, &VAO);
-    glGenBuffers(1, &VBO);
-
-    glBindVertexArray(VAO);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(verts), verts, GL_STATIC_DRAW);
-
-    // Position attribute
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
-    // Color attribute
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
-    glEnableVertexAttribArray(1);
-
-    while (!glfwWindowShouldClose(window)) {
-        if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-            glfwSetWindowShouldClose(window, true);
-
-        glClearColor(0.1f, 0.1f, 0.15f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
-
-        glUseProgram(shader);
-        glBindVertexArray(VAO);
-        glDrawArrays(GL_TRIANGLES, 0, 3);
-
-        glfwSwapBuffers(window);
-        glfwPollEvents();
-    }
+    drawDebugAirplane(window, shader);
 
     glfwTerminate();
     return 0;

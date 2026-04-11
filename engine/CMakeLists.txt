@@ -29,3 +29,13 @@ set(SOLUTION_ITEMS
 )
 
 add_custom_target(Scripts SOURCES ${SOLUTION_ITEMS})
+
+# Preprocessor definitions
+
+target_compile_definitions(PrettyFly PRIVATE
+    $<$<CONFIG:Debug>:PF_DEBUG>
+    $<$<CONFIG:Release>:PF_RELEASE>
+)
+
+# Set startup project for Visual Studio
+set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT PrettyFly)

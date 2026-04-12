@@ -7,7 +7,10 @@ find_package(glfw3 CONFIG REQUIRED)
 find_package(glad CONFIG REQUIRED)
 find_package(glm CONFIG REQUIRED)
 
-add_executable(PrettyFly src/main.cpp)
+add_executable(PrettyFly
+    src/main.cpp
+    src/core/MeshLoader.cpp
+ "src/core/Camera.h")
 
 target_link_libraries(PrettyFly
     PRIVATE glfw
@@ -28,7 +31,7 @@ set(SOLUTION_ITEMS
     ../README.md
 )
 
-add_custom_target(Scripts SOURCES ${SOLUTION_ITEMS})
+add_custom_target(Scripts SOURCES ${SOLUTION_ITEMS} "src/core/Camera.h")
 
 # Preprocessor definitions
 

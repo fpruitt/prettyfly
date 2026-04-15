@@ -25,58 +25,82 @@ Mesh loadGLTF(const std::string& path)
         return mesh;
     }
 
-    std::vector<float> allPositions;
+    std::vector<float> vertexData;
     std::vector<unsigned int> allIndices;
+    bool anyNormals = false;
 
-    for (cgltf_size m = 0; m < data->meshes_count; m++) {
+    for (cgltf_size m = 0; m < data->meshes_count; m++)
+    {
         cgltf_mesh& gltfMesh = data->meshes[m];
 
-        for (cgltf_size p = 0; p < gltfMesh.primitives_count; p++) {
+        for (cgltf_size p = 0; p < gltfMesh.primitives_count; p++)
+        {
             cgltf_primitive& primitive = gltfMesh.primitives[p];
 
-            // Find position attribute
             cgltf_accessor* posAccessor = nullptr;
+            cgltf_accessor* normalAccessor = nullptr;
+
             for (cgltf_size a = 0; a < primitive.attributes_count; a++) {
-                if (primitive.attributes[a].type == cgltf_attribute_type_position) {
+                if (primitive.attributes[a].type == cgltf_attribute_type_position)
+                {
                     posAccessor = primitive.attributes[a].data;
-                    break;
+                }
+                    
+                if (primitive.attributes[a].type == cgltf_attribute_type_normal)
+                {
+                    normalAccessor = primitive.attributes[a].data;
                 }
             }
 
-            if (!posAccessor) {
-                std::cerr << "[MeshLoader] Primitive " << p << " of mesh " << m << " has no positions, skipping\n";
-                continue;
-            }
+            if (!posAccessor) continue;
+            if (normalAccessor) anyNormals = true;
 
-            // Track the base vertex offset before appending new verts
-            // so indices from this primitive point to the right vertices
-            unsigned int baseVertex = (unsigned int)(allPositions.size() / 3);
+            unsigned int baseVertex = (unsigned int)(vertexData.size() / 6);
 
-            // Append positions
             for (cgltf_size v = 0; v < posAccessor->count; v++) {
-                float pos[3];
+                // Position
+                float pos[3] = {};
                 cgltf_accessor_read_float(posAccessor, v, pos, 3);
-                allPositions.push_back(pos[0]);
-                allPositions.push_back(pos[1]);
-                allPositions.push_back(pos[2]);
+                vertexData.push_back(pos[0]);
+                vertexData.push_back(pos[1]);
+                vertexData.push_back(pos[2]);
+
+                // Normal (or zero if not present)
+                float normal[3] = { 0.0f, 1.0f, 0.0f };
+                if (normalAccessor)
+                {
+                    cgltf_accessor_read_float(normalAccessor, v, normal, 3);
+                }
+                vertexData.push_back(normal[0]);
+                vertexData.push_back(normal[1]);
+                vertexData.push_back(normal[2]);
             }
 
-            // Append indices, offset by baseVertex
-            if (primitive.indices) {
-                for (cgltf_size i = 0; i < primitive.indices->count; i++) {
+            if (primitive.indices)
+            {
+                for (cgltf_size i = 0; i < primitive.indices->count; i++)
+                {
                     allIndices.push_back(baseVertex + (unsigned int)cgltf_accessor_read_index(primitive.indices, i));
                 }
             }
-            else {
-                // No indices — generate them sequentially
-                for (unsigned int i = 0; i < (unsigned int)posAccessor->count; i++) {
+            else
+            {
+                for (unsigned int i = 0; i < (unsigned int)posAccessor->count; i++)
+                {
                     allIndices.push_back(baseVertex + i);
                 }
             }
+
+            std::cout << "Mesh " << m << " primitive " << p
+                << " | baseVertex: " << baseVertex
+                << " | verts: " << posAccessor->count
+                << " | indices: " << (primitive.indices ? primitive.indices->count : 0)
+                << " | hasNormals: " << (normalAccessor ? "yes" : "no") << "\n";
         }
     }
 
-    if (allPositions.empty()) {
+    if (vertexData.empty())
+    {
         std::cerr << "[MeshLoader] No geometry found in: " << path << "\n";
         cgltf_free(data);
         return mesh;
@@ -91,12 +115,17 @@ Mesh loadGLTF(const std::string& path)
 
     glBindBuffer(GL_ARRAY_BUFFER, mesh.VBO);
     glBufferData(GL_ARRAY_BUFFER,
-        allPositions.size() * sizeof(float),
-        allPositions.data(),
+        vertexData.size() * sizeof(float),
+        vertexData.data(),
         GL_STATIC_DRAW);
 
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    // Position: location 0, offset 0
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
+
+    // Normal: location 1, offset 3 floats
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.EBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER,
@@ -106,6 +135,7 @@ Mesh loadGLTF(const std::string& path)
 
     mesh.indexed = true;
     mesh.indexCount = (int)allIndices.size();
+    mesh.hasNormals = anyNormals;
 
     glBindVertexArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -113,9 +143,9 @@ Mesh loadGLTF(const std::string& path)
     cgltf_free(data);
 
     std::cout << "[MeshLoader] Loaded: " << path
-        << " | meshes: " << data->meshes_count
-        << " | vertices: " << (allPositions.size() / 3)
-        << " | indices: " << allIndices.size() << "\n";
+        << " | vertices: " << (vertexData.size() / 6)
+        << " | indices: " << allIndices.size()
+        << " | normals: " << (anyNormals ? "yes" : "no") << "\n";
 
     return mesh;
 }

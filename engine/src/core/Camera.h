@@ -67,6 +67,6 @@ struct Camera {
     }
 
     glm::mat4 getProjectionMatrix(float aspectRatio) const {
-        return glm::perspective(glm::radians(fov), aspectRatio, 0.1f, 10000.0f);
+        return glm::perspective(glm::radians(fov), aspectRatio, 0.1f, 100000.0f);
     }
 };

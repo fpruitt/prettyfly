@@ -59,6 +59,52 @@ const char* fragmentShaderNoColorSrc = R"(
     }
 )";
 
+const char* vertexShaderSrc = R"(
+    #version 330 core
+    layout (location = 0) in vec3 aPos;
+    layout (location = 1) in vec3 aNormal;
+
+    uniform mat4 MVP;
+    uniform mat4 Model;
+
+    out vec3 fragNormal;
+    out vec3 fragWorldPos;
+
+    void main() {
+        gl_Position  = MVP * vec4(aPos, 1.0);
+        fragWorldPos = vec3(Model * vec4(aPos, 1.0));
+
+        // Normal matrix corrects normals when non-uniform scaling is applied
+        fragNormal = mat3(transpose(inverse(Model))) * aNormal;
+    }
+)";
+
+const char* fragmentShaderSrc = R"(
+    #version 330 core
+    in vec3 fragNormal;
+    in vec3 fragWorldPos;
+
+    uniform vec3 lightDir;    // normalized direction TO the light
+    uniform vec3 lightColor;
+    uniform vec3 objectColor;
+
+    out vec4 FragColor;
+
+    void main() {
+        vec3 norm = normalize(fragNormal);
+        if (!gl_FrontFacing) norm = -norm;
+
+        float ambientStrength = 0.2;
+        vec3 ambient = ambientStrength * lightColor;
+
+        float diff   = max(dot(norm, normalize(lightDir)), 0.0);
+        vec3 diffuse = diff * lightColor;
+
+        vec3 result = (ambient + diffuse) * objectColor;
+        FragColor   = vec4(result, 1.0);
+    }
+)";
+
 const char* engineName = "PrettyFly";
 
 
@@ -254,9 +300,21 @@ void exampleDebugDrawMeshWithPerspective(GLFWwindow* window, const char* vertexS
     glDeleteShader(vert);
     glDeleteShader(frag);
 
-    // Cache uniform location
+    // Cache uniform locations
     GLint mvpLocation = glGetUniformLocation(shader, "MVP");
-    checkGL("getUniformLocation");
+    checkGL("getUniformLocation - MVP");
+
+    GLint modelLoc = glGetUniformLocation(shader, "Model");
+    checkGL("getUniformLocation - Model");
+
+    GLint lightDirLoc = glGetUniformLocation(shader, "lightDir");
+    checkGL("getUniformLocation - lightDir");
+
+    GLint lightColorLoc = glGetUniformLocation(shader, "lightColor");
+    checkGL("getUniformLocation - lightColor");
+
+    GLint objectColorLoc = glGetUniformLocation(shader, "objectColor");
+    checkGL("getUniformLocation - objectColor");
 
     // Load the mesh from the GLTF file
     while (glGetError() != GL_NO_ERROR) {} // flush before mesh load
@@ -339,6 +397,13 @@ void exampleDebugDrawMeshWithPerspective(GLFWwindow* window, const char* vertexS
         // Draw the mesh
         glUseProgram(shader);
         glUniformMatrix4fv(mvpLocation, 1, GL_FALSE, glm::value_ptr(MVP));
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+
+        // Sun-like light coming from upper right
+        glm::vec3 lightDir = glm::normalize(glm::vec3(1.0f, 2.0f, 1.0f));
+        glUniform3fv(lightDirLoc, 1, glm::value_ptr(lightDir));
+        glUniform3f(lightColorLoc, 1.0f, 1.0f, 0.95f); // slightly warm white
+        glUniform3f(objectColorLoc, 0.7f, 0.75f, 0.8f); // grey-blue aircraft color
 
         //std::cerr << "mesh.VAO: " << mesh.VAO << "\n";
         glBindVertexArray(mesh.VAO);
@@ -428,9 +493,12 @@ int main()
     while (glGetError() != GL_NO_ERROR) {} // flush error queue
     checkGL("context init");
 
+    glDisable(GL_CULL_FACE);
+
+
     //exampleDebugDrawMain(window, vertexShaderWithColorSrc, fragmentShaderWithColorSrc);
     //exampleDebugDrawMesh(window, vertexShaderPositionOnlySrc, fragmentShaderNoColorSrc, "../../../assets/models/f22_raptor/scene.gltf");
-    exampleDebugDrawMeshWithPerspective(window, vertexShaderMVP, fragmentShaderNoColorSrc, "../../../assets/models/f22_raptor/scene.gltf");
+    exampleDebugDrawMeshWithPerspective(window, vertexShaderSrc, fragmentShaderSrc, "../../../assets/models/f22_raptor/scene.gltf");
 
     return 0;
 }

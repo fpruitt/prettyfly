@@ -10,6 +10,7 @@ struct Mesh {
     int indexCount = 0;
     int vertexCount = 0;
     bool indexed = false;
+    bool hasNormals = false;
 
     void free() {
         if (VAO) glDeleteVertexArrays(1, &VAO);

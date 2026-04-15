@@ -4,6 +4,7 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
+#include "core/Config.h"
 #include "core/Input.h"
 #include "rendering/RenderContext.h"
 #include "examples/DebugShapes.h"
@@ -23,6 +24,13 @@ const int GLFW_CONTEXT_VERSION_MINOR_VAL = 3;
 int main()
 {
     std::cout << "Working directory: " << std::filesystem::current_path() << "\n";
+
+    // TODO fix this path nonsense, we should be specifying paths from the project root and not relying on relative
+    // paths from the executable. (this is the first pass of the config system)
+    Config::instance().load("../../../config/engine.ini");
+
+    int width = Config::instance().getInt("Window", "width");
+    int height = Config::instance().getInt("Window", "height");
 
 #ifdef PF_DEBUG
     const char* windowTitle = "PrettyFly (Debug)";
@@ -63,7 +71,7 @@ int main()
     std::unique_ptr<ExampleBase> example;
 
     // Option 1: Debug airplane shape
-    // example = std::make_unique<DebugShapes>();
+    //example = std::make_unique<DebugShapes>();
 
     // Option 2: Mesh viewer with lighting and camera controls
     example = std::make_unique<MeshViewer>("../../../assets/models/f22_raptor/scene.gltf");

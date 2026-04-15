@@ -10,7 +10,7 @@ find_package(glm CONFIG REQUIRED)
 add_executable(PrettyFly
     src/main.cpp
     src/core/MeshLoader.cpp
- "src/core/Camera.h")
+ "src/core/Camera.h" "src/core/Config.h")
 
 target_link_libraries(PrettyFly
     PRIVATE glfw
@@ -29,9 +29,9 @@ set(SOLUTION_ITEMS
     ../setup.ps1
     ../setup.sh
     ../README.md
-)
+ "src/core/Config.h")
 
-add_custom_target(Scripts SOURCES ${SOLUTION_ITEMS} "src/core/Camera.h")
+add_custom_target(Scripts SOURCES ${SOLUTION_ITEMS} "src/core/Camera.h" "src/core/Config.h")
 
 # Preprocessor definitions
 
@@ -42,3 +42,10 @@ target_compile_definitions(PrettyFly PRIVATE
 
 # Set startup project for Visual Studio
 set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT PrettyFly)
+
+# Config directory
+set(CONFIG_FILES
+    config/engine.ini
+)
+
+add_custom_target(Config SOURCES ${CONFIG_FILES})

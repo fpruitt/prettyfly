@@ -1,0 +1,70 @@
+# Git line ending configuration for PrettyFly
+# Local development uses CRLF (Windows)
+# Repository will be configured separately for LF storage
+
+# Default to CRLF for local checkout
+* text=auto eol=crlf
+
+# Source files - CRLF locally
+*.cpp text eol=crlf
+*.h text eol=crlf
+*.c text eol=crlf
+*.hpp text eol=crlf
+*.cc text eol=crlf
+*.cxx text eol=crlf
+
+# CMake files - CRLF locally
+CMakeLists.txt text eol=crlf
+*.cmake text eol=crlf
+
+# Configuration files - CRLF locally
+*.json text eol=crlf
+*.yml text eol=crlf
+*.yaml text eol=crlf
+*.toml text eol=crlf
+*.ini text eol=crlf
+
+# Markdown and documentation - CRLF locally
+*.md text eol=crlf
+*.txt text eol=crlf
+
+# Shell scripts (if any) - keep LF
+*.sh text eol=lf
+
+# Binary files - no line ending conversion
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.mov binary
+*.mp4 binary
+*.mp3 binary
+*.flv binary
+*.fla binary
+*.swf binary
+*.gz binary
+*.zip binary
+*.7z binary
+*.ttf binary
+*.eot binary
+*.woff binary
+*.woff2 binary
+*.exe binary
+*.dll binary
+*.lib binary
+*.a binary
+*.o binary
+*.obj binary
+
+# GLTF/GLB files
+*.gltf text eol=crlf
+*.glb binary
+
+# Shader files - CRLF locally
+*.vert text eol=crlf
+*.frag text eol=crlf
+*.geom text eol=crlf
+*.comp text eol=crlf
+*.glsl text eol=crlf
+*.hlsl text eol=crlf

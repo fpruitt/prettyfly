@@ -3,10 +3,36 @@ root = true
 [*]
 indent_style = space
 indent_size = 4
-end_of_line = lf
+end_of_line = crlf
 charset = utf-8
 trim_trailing_whitespace = true
 insert_final_newline = true
 
+# C++ source files - CRLF for Windows development
+[*.{cpp,h,hpp,c,cc,cxx}]
+end_of_line = crlf
+
+# CMake files
+[CMakeLists.txt]
+end_of_line = crlf
+
+[*.cmake]
+end_of_line = crlf
+
+# Config files
+[*.{json,yml,yaml,md}]
+end_of_line = crlf
+
+# Visual Studio files
 [*.sln]
 end_of_line = crlf
+
+[*.vcxproj]
+end_of_line = crlf
+
+[*.vcxproj.filters]
+end_of_line = crlf
+
+# Shell scripts keep LF
+[*.sh]
+end_of_line = lf

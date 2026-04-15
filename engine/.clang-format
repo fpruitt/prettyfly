@@ -35,6 +35,10 @@ SpaceInEmptyParentheses: false
 PointerAlignment: Left
 ReferenceAlignment: Left
 
+# Line endings - CRLF for Windows development
+LineEnding: CRLF
+UseCRLF: true
+
 # Other
 AlignTrailingComments: true
 AlignConsecutiveAssignments: false

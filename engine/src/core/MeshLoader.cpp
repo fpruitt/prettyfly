@@ -13,13 +13,15 @@ Mesh loadGLTF(const std::string& path)
     cgltf_data* data = nullptr;
 
     cgltf_result result = cgltf_parse_file(&options, path.c_str(), &data);
-    if (result != cgltf_result_success) {
+    if (result != cgltf_result_success)
+    {
         std::cerr << "[MeshLoader] Failed to parse GLTF file: " << path << std::endl;
         return mesh;
     }
 
     result = cgltf_load_buffers(&options, data, path.c_str());
-    if (result != cgltf_result_success || !data) {
+    if (result != cgltf_result_success || !data)
+    {
         std::cerr << "[MeshLoader] Failed to load buffers: " << path << std::endl;
         cgltf_free(data);
         return mesh;
@@ -40,24 +42,32 @@ Mesh loadGLTF(const std::string& path)
             cgltf_accessor* posAccessor = nullptr;
             cgltf_accessor* normalAccessor = nullptr;
 
-            for (cgltf_size a = 0; a < primitive.attributes_count; a++) {
+            for (cgltf_size a = 0; a < primitive.attributes_count; a++)
+            {
                 if (primitive.attributes[a].type == cgltf_attribute_type_position)
                 {
                     posAccessor = primitive.attributes[a].data;
                 }
-                    
+
                 if (primitive.attributes[a].type == cgltf_attribute_type_normal)
                 {
                     normalAccessor = primitive.attributes[a].data;
                 }
             }
 
-            if (!posAccessor) continue;
-            if (normalAccessor) anyNormals = true;
+            if (!posAccessor)
+            {
+                continue;
+            }
+            if (normalAccessor)
+            {
+                anyNormals = true;
+            }
 
             unsigned int baseVertex = (unsigned int)(vertexData.size() / 6);
 
-            for (cgltf_size v = 0; v < posAccessor->count; v++) {
+            for (cgltf_size v = 0; v < posAccessor->count; v++)
+            {
                 // Position
                 float pos[3] = {};
                 cgltf_accessor_read_float(posAccessor, v, pos, 3);

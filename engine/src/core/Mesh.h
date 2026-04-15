@@ -3,7 +3,8 @@
 #include <string>
 #include <glad/glad.h>
 
-struct Mesh {
+struct Mesh
+{
     GLuint VAO = 0;
     GLuint VBO = 0;
     GLuint EBO = 0;
@@ -12,9 +13,19 @@ struct Mesh {
     bool indexed = false;
     bool hasNormals = false;
 
-    void free() {
-        if (VAO) glDeleteVertexArrays(1, &VAO);
-        if (VBO) glDeleteBuffers(1, &VBO);
-        if (EBO) glDeleteBuffers(1, &EBO);
+    void free()
+    {
+        if (VAO)
+        {
+            glDeleteVertexArrays(1, &VAO);
+        }
+        if (VBO)
+        {
+            glDeleteBuffers(1, &VBO);
+        }
+        if (EBO)
+        {
+            glDeleteBuffers(1, &EBO);
+        }
     }
 };

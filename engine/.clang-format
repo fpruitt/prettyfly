@@ -1,0 +1,41 @@
+---
+# PrettyFly C++ Style - Allman/BSD with mandatory braces
+BasedOnStyle: LLVM
+IndentWidth: 4
+TabWidth: 4
+UseTab: Never
+
+# Allman style - braces on new lines
+BreakBeforeBraces: Allman
+
+# Force braces for all control statements
+AllowShortIfStatementsOnASingleLine: Never
+AllowShortLoopsOnASingleLine: false
+AllowShortBlocksOnASingleLine: Never
+
+# Lambda formatting
+AllowShortLambdasOnASingleLine: None
+
+# Function formatting
+AllowShortFunctionsOnASingleLine: None
+
+# Column limit
+ColumnLimit: 120
+
+# Indentation
+IndentCaseLabels: true
+NamespaceIndentation: None
+
+# Spacing
+SpaceAfterCStyleCast: false
+SpaceBeforeParens: ControlStatements
+SpaceInEmptyParentheses: false
+
+# Pointers and references
+PointerAlignment: Left
+ReferenceAlignment: Left
+
+# Other
+AlignTrailingComments: true
+AlignConsecutiveAssignments: false
+AlignConsecutiveDeclarations: false

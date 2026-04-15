@@ -2,11 +2,12 @@
 #include <glm/fwd.hpp>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-#include <GLFW/glfw3.h>
+#include "Input.h"
 #include <cmath>
 
 
-struct Camera {
+struct Camera
+{
     glm::vec3 position = glm::vec3(0.0f, 2.0f, 20.0f);
     float yaw = -90.0f; // facing -Z by default
     float pitch = 0.0f;
@@ -23,7 +24,8 @@ struct Camera {
     float lastMouseX = 0.0f;
     float lastMouseY = 0.0f;
 
-    void updateVectors() {
+    void updateVectors()
+    {
         glm::vec3 f;
         f.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
         f.y = sin(glm::radians(pitch));
@@ -33,18 +35,39 @@ struct Camera {
         up = glm::normalize(glm::cross(right, forward));
     }
 
-    void processKeyboard(GLFWwindow* window, float deltaTime) {
+    void processInput(float deltaTime)
+    {
         float velocity = moveSpeed * deltaTime;
-        if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) position += forward * velocity;
-        if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) position -= forward * velocity;
-        if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) position -= right * velocity;
-        if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) position += right * velocity;
-        if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) position += glm::vec3(0, 1, 0) * velocity;
-        if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS) position -= glm::vec3(0, 1, 0) * velocity;
+        if (Input::isKeyPressed(KeyCode::W))
+        {
+            position += forward * velocity;
+        }
+        if (Input::isKeyPressed(KeyCode::S))
+        {
+            position -= forward * velocity;
+        }
+        if (Input::isKeyPressed(KeyCode::A))
+        {
+            position -= right * velocity;
+        }
+        if (Input::isKeyPressed(KeyCode::D))
+        {
+            position += right * velocity;
+        }
+        if (Input::isKeyPressed(KeyCode::Space))
+        {
+            position += glm::vec3(0, 1, 0) * velocity;
+        }
+        if (Input::isKeyPressed(KeyCode::LeftControl))
+        {
+            position -= glm::vec3(0, 1, 0) * velocity;
+        }
     }
 
-    void processMouse(float xpos, float ypos) {
-        if (firstMouse) {
+    void processMouse(float xpos, float ypos)
+    {
+        if (firstMouse)
+        {
             lastMouseX = xpos;
             lastMouseY = ypos;
             firstMouse = false;
@@ -62,11 +85,13 @@ struct Camera {
         updateVectors();
     }
 
-    glm::mat4 getViewMatrix() const {
+    glm::mat4 getViewMatrix() const
+    {
         return glm::lookAt(position, position + forward, up);
     }
 
-    glm::mat4 getProjectionMatrix(float aspectRatio) const {
+    glm::mat4 getProjectionMatrix(float aspectRatio) const
+    {
         return glm::perspective(glm::radians(fov), aspectRatio, 0.1f, 100000.0f);
     }
 };
